@@ -1,0 +1,132 @@
+//to print bills of customers with multiple items along with name, bill,total and etc.....
+#include <stdio.h>
+
+struct item{
+    char itemname[50];
+    int qty;
+    float price;
+    float total;
+};
+struct Bill {
+    int billNo;
+    char customerName[50];
+    struct item items[20];
+    int itemcount;
+    float costPerItem;
+    float grandtotal;
+};
+
+// Function to add bill
+void addBill() {
+
+    struct Bill B;
+
+    FILE *fp = fopen("MegaMart.txt", "ab");
+
+    if(fp == NULL) {
+        printf("File not created\n");
+        return;
+    }
+
+    printf("\nEnter Bill Number: ");
+    scanf("%d", &B.billNo);
+
+    printf("Enter Customer Name: ");
+    scanf(" %[^\n]", B.customerName);
+
+    printf("Enter Item count (upto 20): ");
+    scanf("%d",&B.itemcount);
+
+    B.grandtotal = 0;
+    for(int i=0;i<B.itemcount;i++)
+    {
+        printf("Enter item name of %d :",i+1);
+        scanf(" %[^\n]",B.items[i].itemname);
+
+        printf("Enter no. of qty of item %d: ",i+1);
+        scanf("%d",&B.items[i].qty);
+
+        printf("Enter price of item %d :",i+1);
+        scanf("%f",&B.items[i].price);
+
+        B.items[i].total = 0;
+        B.items[i].total=B.items[i].price*B.items[i].qty;
+        B.grandtotal = B.grandtotal+B.items[i].total;
+    }
+
+    fwrite(&B, sizeof(B), 1, fp);
+
+    fclose(fp);
+
+    printf("\nBill Added Successfully!\n");
+}
+
+// Function to display all bills
+void displayBill() {
+
+    struct Bill B;
+
+    FILE *fp = fopen("MegaMart.txt", "rb");
+
+    if(fp == NULL) {
+        printf("No bills found.\n");
+        return;
+    }
+
+    printf("\n------ All Bills ------\n");
+
+    while(fread(&B, sizeof(B), 1, fp)) {
+
+        printf("\nBill Number: %d\n", B.billNo);
+        printf("Customer Name: %s\n", B.customerName);
+
+        for(int i=0;i<B.itemcount;i++)
+        {
+        printf("Item Name: %s\n", B.items[i].itemname);
+        printf("Quantity: %d\n", B.items[i].qty);
+        printf("Cost per Item: %.2f\n", B.items[i].price);
+        printf("Total: %.2f\n", B.items[i].total);
+        }
+
+       printf("\n");
+        printf("Grand total is = %0.2f \n",B.grandtotal);
+
+         printf("------------------------\n");
+    }
+
+    fclose(fp);
+}
+
+int main() {
+
+    int choice;
+
+    do {
+        printf("\n1. Add Bill\n");
+        printf("2. Display Bills\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+
+            case 1:
+                addBill();
+                break;
+
+            case 2:
+                displayBill();
+                break;
+
+            case 3:
+                printf("Exiting program. Thank you!\n");
+                break;
+
+            default:
+                printf("Invalid choice\n");
+        }
+
+    } while(choice != 3);
+
+    return 0;
+}
